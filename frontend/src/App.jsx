@@ -4,8 +4,11 @@ import Hero from "./components/Hero";
 import ListingGrid from "./components/ListingGrid";
 import PostListingModal from "./components/PostListingModal";
 import AuthModal from "./components/AuthModal";
+import PublicPreview from "./components/PublicPreview";
+import MemberHub from "./components/MemberHub";
 import { AuthContext } from "./context/AuthContext";
 import { getListings, getMyListings, createListing, deleteListing } from "./services/api";
+import { AnimatedBackground, CursorFollower, LoadingOverlay, ScrollExperience } from "./components/Motion";
 
 function App() {
   const { user } = useContext(AuthContext);
@@ -80,6 +83,10 @@ function App() {
 
   return (
     <>
+      <LoadingOverlay />
+      <AnimatedBackground />
+      <CursorFollower />
+      <ScrollExperience />
       <Navbar 
         onPostClick={() => user ? setIsModalOpen(true) : setIsAuthModalOpen(true)} 
         onLoginClick={() => setIsAuthModalOpen(true)} 
@@ -93,7 +100,17 @@ function App() {
         />
         
         {user ? (
-          <ListingGrid 
+          <>
+            <MemberHub
+              user={user}
+              listings={listings}
+              myListings={myListings}
+              radius={radius}
+              onPost={() => setIsModalOpen(true)}
+              onShowMine={() => { setActiveTab("mine"); document.querySelector(".listings")?.scrollIntoView({ behavior: "smooth" }); }}
+              onShowCommunity={() => { setActiveTab("community"); document.querySelector(".listings")?.scrollIntoView({ behavior: "smooth" }); }}
+            />
+            <ListingGrid
             listings={activeTab === "community" ? listings : myListings}
             user={user}
             activeTab={activeTab}
@@ -103,15 +120,9 @@ function App() {
             radius={radius}
             onDelete={handleDeleteListing}
           />
+          </>
         ) : (
-          <div style={{ textAlign: "center", padding: "60px 20px", color: "#666" }}>
-            <i className="ri-lock-2-line" style={{ fontSize: "48px", color: "#ccc", marginBottom: "16px", display: "block" }}></i>
-            <h2>Join your neighborhood to see listings</h2>
-            <p style={{ marginTop: "8px", marginBottom: "24px" }}>Sign up to view and post local items and skills.</p>
-            <button className="submit-btn" style={{ width: "auto", padding: "12px 32px" }} onClick={() => setIsAuthModalOpen(true)}>
-              Sign Up to Unlock
-            </button>
-          </div>
+          <PublicPreview onJoin={() => setIsAuthModalOpen(true)} />
         )}
       </main>
 

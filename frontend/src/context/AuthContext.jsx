@@ -1,44 +1,4 @@
-import { createContext, useState, useEffect } from "react";
-import axios from "axios";
-
+﻿import { createContext, useState, useEffect } from "react";
 export const AuthContext = createContext();
-
-export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [token, setToken] = useState(localStorage.getItem("token") || null);
-
-  useEffect(() => {
-    if (token) {
-      localStorage.setItem("token", token);
-      // In a real app we would verify token or fetch user profile,
-      // here we just decode locally if we had to, but API will return 'invalid token' if it's bad.
-      // We will parse simple jwt payload to keep track of user ID (or just rely on API response).
-      try {
-        const payload = JSON.parse(atob(token.split(".")[1]));
-        setUser({ id: payload.id }); // basic hydration 
-      } catch (e) {
-        setToken(null);
-        localStorage.removeItem("token");
-      }
-    } else {
-      localStorage.removeItem("token");
-      setUser(null);
-    }
-  }, [token]);
-
-  const login = (newToken, newUser) => {
-    setToken(newToken);
-    setUser(newUser);
-  };
-
-  const logout = () => {
-    setToken(null);
-    setUser(null);
-  };
-
-  return (
-    <AuthContext.Provider value={{ user, token, login, logout }}>
-      {children}
-    </AuthContext.Provider>
-  );
-};
+const readStoredUser=()=>{try{return JSON.parse(localStorage.getItem("streetcircle_user"))}catch{return null}};
+export const AuthProvider=({children})=>{const [user,setUser]=useState(readStoredUser);const [token,setToken]=useState(localStorage.getItem("token")||null);useEffect(()=>{if(token){localStorage.setItem("token",token);try{const payload=JSON.parse(atob(token.split(".")[1]));setUser(current=>current?.id===payload.id?current:{id:payload.id})}catch{setToken(null);localStorage.removeItem("token");localStorage.removeItem("streetcircle_user")}}else{localStorage.removeItem("token");localStorage.removeItem("streetcircle_user");setUser(null)}},[token]);const login=(newToken,newUser)=>{localStorage.setItem("streetcircle_user",JSON.stringify(newUser));setUser(newUser);setToken(newToken)};const logout=()=>{setToken(null);setUser(null)};return <AuthContext.Provider value={{user,token,login,logout}}>{children}</AuthContext.Provider>};
