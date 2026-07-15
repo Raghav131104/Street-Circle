@@ -1,77 +1,161 @@
-# 🏙️ StreetCircle
+# StreetCircle
 
-StreetCircle is a full-stack MERN (MongoDB, Express, React, Node) hyperlocal marketplace application. It allows users to create accounts, browse nearby items and skills based on real-time mathematical geolocation, and contact neighbors.
+An immersive, hyperlocal sharing platform for exchanging useful items and community skills with nearby neighbors.
 
----
+StreetCircle combines a functional MERN marketplace with an editorial, motion-led interface. Visitors receive an interactive public preview before joining, while authenticated members receive a personalized neighborhood command center, live listing statistics, search, filtering, contact details, and listing management.
 
-## 🚀 How to Start the Project
-If you close your terminal or restart your computer, follow these exact steps to boot the application back up.
+## Highlights
 
-### Step 1: Start the Backend (Server & Database)
-Open a new Terminal window or Command Prompt, and run:
-```bash
-cd Desktop\StreetCircle\backend
-npm start
+### Public experience
+
+- Full-screen animated introduction and logo reveal
+- Interactive React Three Fiber neighborhood scene
+- GSAP ScrollTrigger section and typography reveals
+- Draggable neighborhood activity cards
+- Animated local radar and discovery preview
+- Magnetic calls to action, ripple feedback, and custom cursor
+- Responsive layouts and reduced-motion fallbacks
+
+### Member experience
+
+- JWT-based registration and login
+- Personalized member greeting preserved across refreshes
+- Interactive neighborhood activity map
+- Nearby listing, personal share, and skill statistics
+- Community and personal listing feeds
+- Search, distance, and listing-type filters
+- Create listings with image previews
+- Contact neighbors and manage personal listings
+
+### Development reliability
+
+- MongoDB Atlas is used whenever it is reachable
+- Persistent local JSON storage is used automatically during local development when Atlas is unavailable
+- Passwords remain bcrypt-hashed in both storage modes
+- API contracts remain identical between MongoDB and local storage
+
+## Technology
+
+- React 19 and Vite
+- Framer Motion
+- GSAP and ScrollTrigger
+- Three.js
+- React Three Fiber and Drei
+- Axios
+- Node.js and Express
+- MongoDB and Mongoose
+- JSON Web Tokens and bcrypt
+
+## Project structure
+
+```text
+Street-Circle/
+├── backend/
+│   ├── controllers/        # Authentication and listing operations
+│   ├── middleware/         # JWT route protection
+│   ├── models/             # Mongoose user and listing models
+│   ├── routes/             # Express API routes
+│   ├── devStore.js         # Persistent local development fallback
+│   └── server.js           # Backend entry point
+├── frontend/
+│   ├── public/
+│   └── src/
+│       ├── components/     # UI, motion, member, public, and 3D components
+│       ├── context/        # Authentication state
+│       ├── services/       # API client
+│       ├── App.jsx
+│       └── index.css
+└── ARCHITECTURE.md
 ```
-*Wait until you see:* `Server running on port 5005` and `Connected to MongoDB`.
 
-### Step 2: Start the Frontend (User Interface)
-Open a **second, separate** Terminal window, and run:
+## Local setup
+
+### Requirements
+
+- Node.js 20.19 or newer
+- npm
+- Optional: a MongoDB Atlas connection string
+
+### 1. Clone the repository
+
 ```bash
-cd Desktop\StreetCircle\frontend
-npm run dev
+git clone https://github.com/Raghav131104/Street-Circle.git
+cd Street-Circle
 ```
-*Wait until you see:* `➜  Local:   http://localhost:5173/`. 
-Hold **`Ctrl`** and click that link to open StreetCircle in your browser.
 
----
+### 2. Configure the backend
 
-## 🏗️ System Architecture
-The application works synchronously through a robust MERN stack workflow:
-1. **Frontend (Vite/React):** The visual interface the user interacts with. It asks the backend for data.
-2. **Backend (Node.js/Express):** The middleman server logic. It securely receives requests, checks conditions (like passwords or distances), and talks to the database.
-3. **Database (MongoDB Atlas):** The cloud storage network holding all `users` and `listings` data.
+Create `backend/.env`:
 
----
+```env
+PORT=5005
+MONGO_URI=your_mongodb_connection_string
+JWT_SECRET=replace_with_a_long_random_secret
+```
 
-## 📂 File Explanations & Workflow
+`MONGO_URI` is optional for local development. If MongoDB cannot be reached, StreetCircle starts with persistent local storage in `backend/.local-data.json`. This file and `.env` are ignored by Git.
 
-### 1. The Backend (Node.js / Express)
-The backend is fundamentally responsible for security, data storage, and executing complex math queries (like Geographic proximity).
+### 3. Start the backend
 
-*   `server.js`: The central entry point. It boots up the local server on Port `5005`, actively connects to your MongoDB Cloud cluster, and opens up CORS (Cross-Origin Resource Sharing) which permits your Frontend (`5173`) to talk to your Backend safely.
-*   **`models/` (Data Blueprints)**
-    *   `User.js`: Tells MongoDB how to shape a User (username, email, phone, encrypted password).
-    *   `Listing.js`: Shapes the listing structure. Crucially, it sets a MongoDB `2dsphere` geographic index on the location field so we can measure exact earth distances.
-*   **`middleware/` (Security Checkpoints)**
-    *   `authMiddleware.js`: Acts like a bouncer. Before running any protected commands (like attempting to delete a post), it checks if an authentic JWT (JSON Web Token) is present in the headers.
-*   **`controllers/` (The Business Logic)**
-    *   `authController.js`: Handles registration. Before saving passwords, it hashes/scrambles them using `bcrypt`.
-    *   `listingController.js`: Handles our biggest database queries. `getListings` utilizes MongoDB's `$near` operator to perfectly calculate the radius distance of posts from your location. `createListing` handles converting your uploaded images into secure Base64 text strings to be saved locally.
-*   **`routes/` (URL Paths)**
-    *   Creates URLs like `/api/auth/register` to route the internet traffic to the correct `controller`.
+```powershell
+cd backend
+npm.cmd install
+node server.js
+```
 
-### 2. The Frontend (React.js)
-The frontend manages state, user experience, and animations.
+Expected output:
 
-*   `App.jsx`: The "Brain" of the interface. 
-    *   It holds the Central States (e.g., `radius` filter size, `listings` array, `user` credentials).
-    *   When it loads (`useEffect`), it orders `services/api.js` to fetch listings.
-    *   It passes data downward into the visual components.
-*   `context/AuthContext.jsx`: Prevents the user from being logged out on refresh. It persistently saves the JWT token into your browser's `localStorage` and continuously wraps the application to say "Yes, this person is logged in".
-*   `services/api.js`: A dedicated folder that uses `Axios` to manage HTTP connections to the backend server. If you ever deploy the website online, you only need to change the `API_URL` here.
-*   **`components/` (Interface Building Blocks)**
-    *   `ListingGrid.jsx`: The filtering engine. It receives the raw array of listings from `App.jsx` and runs live Javascript `.filter()` loops across them whenever you type in the search bar or switch between `Community` and `Mine` tabs.
-    *   `ListingCard.jsx`: Renders the specific card UI. Uses conditional rendering (`isMine`) to decide whether to show a generic pink "Delete Button" or a green "Contact" button.
-    *   `HeroGraphic.jsx`: The animated Right-side screen UI. Completely powered by structural CSS and `framer-motion` variant arrays that tell the computer to automatically repeat subtle Y-axis transforms.
-    *   `ContactModal.jsx` / `AuthModal.jsx`: Fixed position UI overlays with glassmorphic background blurs (`backdrop-filter: blur()`). They receive data and block the background layout until successfully closed.
-    *   `index.css`: The central styling hub. It features CSS Variables, modern grid layouts, and advanced glass properties (Frost textures that adapt cleanly under component movement).
+```text
+Server running on port 5005
+Connected to MongoDB
+```
 
----
+When MongoDB is unavailable, the server instead reports that persistent local development storage is active.
 
-## 🔀 Step-by-Step Code Walkthrough (Example)
-**What happens mathematically when you click "Contact Owner"?**
+### 4. Start the frontend
 
-1.  **React State (`ListingGrid.jsx`)**: You click the button on `ListingCard.jsx`. It passes the event up and sets `contactInfo` to the author of that post.
-2.  **Modal Trigger (`ContactModal.jsx`)**: React notices `contactInfo` is no longer null, mounting `ContactModal.jsx` instantly on screen.
-3.  **UI Data Mapping**: The modal takes the `user.phone` and `user.email` data variables (which were already securely populated during the `fetchCommunityListings` backend query via Mongoose's `.populate()`) and prints them onto beautifully styled glassmorphic panels!
+Open another terminal from the repository root:
+
+```powershell
+cd frontend
+npm.cmd install
+npm.cmd run dev -- --configLoader runner
+```
+
+Open the URL printed by Vite, normally [http://localhost:5173](http://localhost:5173).
+
+The `runner` config loader avoids Windows file-locking issues that can affect Vite's temporary configuration directory.
+
+## API endpoints
+
+| Method | Endpoint | Purpose | Authentication |
+| --- | --- | --- | --- |
+| `GET` | `/api/health` | Check API and active storage mode | No |
+| `POST` | `/api/auth/register` | Create an account | No |
+| `POST` | `/api/auth/login` | Log in and receive a JWT | No |
+| `GET` | `/api/listings` | Get nearby listings | No |
+| `POST` | `/api/listings` | Create a listing | Yes |
+| `GET` | `/api/listings/me` | Get the current member's listings | Yes |
+| `DELETE` | `/api/listings/:id` | Delete an owned listing | Yes |
+
+## Production build
+
+```powershell
+cd frontend
+npm.cmd run build
+```
+
+The Three.js experience is lazy-loaded into a separate bundle so initial content can become interactive before the WebGL scene finishes loading.
+
+## Accessibility and performance
+
+- Honors `prefers-reduced-motion`
+- Simplifies pointer effects on touch devices
+- Uses a low-power WebGL context and limited device pixel ratio
+- Caps the particle count in the Three.js scene
+- Cleans up GSAP animations and ScrollTriggers on unmount
+- Supports visible keyboard focus and semantic form controls
+
+## Repository
+
+[github.com/Raghav131104/Street-Circle](https://github.com/Raghav131104/Street-Circle)
