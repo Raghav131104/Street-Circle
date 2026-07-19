@@ -1,120 +1,100 @@
 # StreetCircle
 
-An immersive, hyperlocal sharing platform for exchanging useful items and community skills with nearby neighbors.
+StreetCircle is a frontend-focused college project for sharing items and skills with nearby neighbors. It combines a creative React interface with a deliberately small Express and MySQL backend that is easy to study and explain.
 
-StreetCircle combines a functional MERN marketplace with an editorial, motion-led interface. Visitors receive an interactive public preview before joining, while authenticated members receive a personalized neighborhood command center, live listing statistics, search, filtering, contact details, and listing management.
+## Features
 
-## Highlights
-
-### Public experience
-
-- Full-screen animated introduction and logo reveal
-- Interactive React Three Fiber neighborhood scene
-- GSAP ScrollTrigger section and typography reveals
-- Draggable neighborhood activity cards
-- Animated local radar and discovery preview
-- Magnetic calls to action, ripple feedback, and custom cursor
-- Responsive layouts and reduced-motion fallbacks
-
-### Member experience
-
-- JWT-based registration and login
-- Personalized member greeting preserved across refreshes
-- Interactive neighborhood activity map
-- Nearby listing, personal share, and skill statistics
+- Separate public preview and logged-in member dashboard
+- Registration and login with bcrypt password hashing
 - Community and personal listing feeds
-- Search, distance, and listing-type filters
-- Create listings with image previews
-- Contact neighbors and manage personal listings
-
-### Development reliability
-
-- MongoDB Atlas is used whenever it is reachable
-- Persistent local JSON storage is used automatically during local development when Atlas is unavailable
-- Passwords remain bcrypt-hashed in both storage modes
-- API contracts remain identical between MongoDB and local storage
+- Create and delete owned listings
+- Search, item/skill filters, and distance filters
+- Image preview and neighbor contact details
+- Responsive editorial design
+- Lightweight Framer Motion and CSS animations
+- Reduced-motion accessibility
 
 ## Technology
 
-- React 19 and Vite
-- Framer Motion
-- GSAP and ScrollTrigger
-- Three.js
-- React Three Fiber and Drei
+### Frontend
+
+- React and JavaScript
 - Axios
+- Framer Motion
+- CSS animations and Intersection Observer
+- Vite
+
+### Backend
+
 - Node.js and Express
-- MongoDB and Mongoose
-- JSON Web Tokens and bcrypt
+- MySQL using `mysql2`
+- bcrypt password hashing
+- Parameterized SQL queries
+
+The project intentionally does not use MongoDB, Mongoose, JWT, Three.js, GSAP, or ScrollTrigger.
+
+## Architecture
+
+```text
+React frontend
+      │ Axios JSON requests
+      ▼
+Minimal Express API
+      │ Parameterized SQL
+      ▼
+MySQL database
+```
 
 ## Project structure
 
 ```text
 Street-Circle/
 ├── backend/
-│   ├── controllers/        # Authentication and listing operations
-│   ├── middleware/         # JWT route protection
-│   ├── models/             # Mongoose user and listing models
-│   ├── routes/             # Express API routes
-│   ├── devStore.js         # Persistent local development fallback
-│   └── server.js           # Backend entry point
+│   ├── db.js          # MySQL connection pool
+│   ├── schema.sql     # users and listings tables
+│   ├── server.js      # all six API endpoints
+│   ├── .env.example
+│   └── package.json
 ├── frontend/
-│   ├── public/
 │   └── src/
-│       ├── components/     # UI, motion, member, public, and 3D components
-│       ├── context/        # Authentication state
-│       ├── services/       # API client
+│       ├── components/
+│       ├── context/
+│       ├── services/
 │       ├── App.jsx
 │       └── index.css
-└── ARCHITECTURE.md
+└── STUDY.md
 ```
 
-## Local setup
+## MySQL setup
 
-### Requirements
+1. Install and start MySQL.
+2. Run `backend/schema.sql` using MySQL Workbench or the command line:
 
-- Node.js 20.19 or newer
-- npm
-- Optional: a MongoDB Atlas connection string
-
-### 1. Clone the repository
-
-```bash
-git clone https://github.com/Raghav131104/Street-Circle.git
-cd Street-Circle
+```powershell
+mysql -u root -p < backend/schema.sql
 ```
 
-### 2. Configure the backend
+3. Copy the example configuration:
 
-Create `backend/.env`:
-
-```env
-PORT=5005
-MONGO_URI=your_mongodb_connection_string
-JWT_SECRET=replace_with_a_long_random_secret
+```powershell
+Copy-Item backend/.env.example backend/.env
 ```
 
-`MONGO_URI` is optional for local development. If MongoDB cannot be reached, StreetCircle starts with persistent local storage in `backend/.local-data.json`. This file and `.env` are ignored by Git.
+4. Put your MySQL password in `backend/.env`.
 
-### 3. Start the backend
+## Run the backend
 
 ```powershell
 cd backend
 npm.cmd install
-node server.js
+npm.cmd start
 ```
 
-Expected output:
+The API starts at `http://localhost:5005`.
 
-```text
-Server running on port 5005
-Connected to MongoDB
-```
+## Run the frontend
 
-When MongoDB is unavailable, the server instead reports that persistent local development storage is active.
-
-### 4. Start the frontend
-
-Open another terminal from the repository root:
+In another terminal:
 
 ```powershell
 cd frontend
@@ -122,40 +102,26 @@ npm.cmd install
 npm.cmd run dev -- --configLoader runner
 ```
 
-Open the URL printed by Vite, normally [http://localhost:5173](http://localhost:5173).
-
-The `runner` config loader avoids Windows file-locking issues that can affect Vite's temporary configuration directory.
+Open the URL printed by Vite.
 
 ## API endpoints
 
-| Method | Endpoint | Purpose | Authentication |
-| --- | --- | --- | --- |
-| `GET` | `/api/health` | Check API and active storage mode | No |
-| `POST` | `/api/auth/register` | Create an account | No |
-| `POST` | `/api/auth/login` | Log in and receive a JWT | No |
-| `GET` | `/api/listings` | Get nearby listings | No |
-| `POST` | `/api/listings` | Create a listing | Yes |
-| `GET` | `/api/listings/me` | Get the current member's listings | Yes |
-| `DELETE` | `/api/listings/:id` | Delete an owned listing | Yes |
+| Method | Endpoint | Purpose |
+| --- | --- | --- |
+| `GET` | `/api/health` | Check MySQL connection |
+| `POST` | `/api/register` | Register a user |
+| `POST` | `/api/login` | Log in |
+| `GET` | `/api/listings` | Get nearby listings |
+| `POST` | `/api/listings` | Create a listing |
+| `GET` | `/api/listings/user/:userId` | Get one user's listings |
+| `DELETE` | `/api/listings/:id` | Delete an owned listing |
 
-## Production build
+## Database
 
-```powershell
-cd frontend
-npm.cmd run build
-```
+The `users` table stores account details and bcrypt password hashes. The `listings` table stores item/skill posts and uses `author_id` as a foreign key to `users.id`.
 
-The Three.js experience is lazy-loaded into a separate bundle so initial content can become interactive before the WebGL scene finishes loading.
+All values are passed through `?` placeholders rather than being inserted into SQL strings. This makes the queries easier to read and protects against SQL injection.
 
-## Accessibility and performance
+## Resume summary
 
-- Honors `prefers-reduced-motion`
-- Simplifies pointer effects on touch devices
-- Uses a low-power WebGL context and limited device pixel ratio
-- Caps the particle count in the Three.js scene
-- Cleans up GSAP animations and ScrollTriggers on unmount
-- Supports visible keyboard focus and semantic form controls
-
-## Repository
-
-[github.com/Raghav131104/Street-Circle](https://github.com/Raghav131104/Street-Circle)
+> Built a responsive community marketplace using React, JavaScript, Node.js, Express, and MySQL. Implemented registration and login, item and skill listings, search and distance filters, image previews, contact details, and personal listing management. Created a modern editorial interface with Framer Motion and lightweight CSS animations, supported by a minimal REST API using parameterized SQL queries and bcrypt password hashing.

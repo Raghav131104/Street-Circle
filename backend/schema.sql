@@ -1,0 +1,27 @@
+CREATE DATABASE IF NOT EXISTS streetcircle;
+USE streetcircle;
+
+CREATE TABLE IF NOT EXISTS users (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  username VARCHAR(50) NOT NULL UNIQUE,
+  password VARCHAR(255) NOT NULL,
+  email VARCHAR(100) NOT NULL,
+  phone VARCHAR(20) NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS listings (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  title VARCHAR(150) NOT NULL,
+  description TEXT NOT NULL,
+  type ENUM('item', 'skill') NOT NULL,
+  price DECIMAL(10, 2) DEFAULT 0,
+  latitude DECIMAL(10, 7) NOT NULL,
+  longitude DECIMAL(10, 7) NOT NULL,
+  image LONGTEXT,
+  author_id INT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_listing_author
+    FOREIGN KEY (author_id) REFERENCES users(id)
+    ON DELETE CASCADE
+);

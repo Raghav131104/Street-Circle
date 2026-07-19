@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
 import { AuthContext } from "../context/AuthContext";
 
-const API_URL = "http://localhost:5005/api/auth";
+const API_URL = "http://localhost:5005/api";
 
 export default function AuthModal({ isOpen, onClose }) {
   const [isLogin, setIsLogin] = useState(true);
@@ -19,7 +19,7 @@ export default function AuthModal({ isOpen, onClose }) {
     try {
       const endpoint = isLogin ? "/login" : "/register";
       const { data } = await axios.post(`${API_URL}${endpoint}`, formData);
-      login(data.token, data.user);
+      login(data.user);
       onClose();
       setFormData({ username: "", password: "", email: "", phone: "" });
     } catch (err) {

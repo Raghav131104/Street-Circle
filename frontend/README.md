@@ -1,16 +1,19 @@
 # StreetCircle Frontend
 
-The frontend is a React 19 and Vite application using GSAP ScrollTrigger, Framer Motion, Three.js, React Three Fiber, and Drei.
+React frontend for the StreetCircle college project.
 
-Project setup, environment configuration, feature documentation, and run instructions are maintained in the [repository README](../README.md).
+## Main libraries
+
+- React
+- Axios
+- Framer Motion
+- Vite
+
+Creative motion is implemented with Framer Motion, CSS keyframes, transitions, and Intersection Observer. The frontend deliberately avoids WebGL and overlapping animation libraries.
 
 ```powershell
 npm.cmd install
 npm.cmd run dev -- --configLoader runner
 ```
 
-Create a production build with:
-
-```powershell
-npm.cmd run build
-```
+See the [root README](../README.md) for MySQL and backend setup.

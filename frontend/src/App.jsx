@@ -8,7 +8,7 @@ import PublicPreview from "./components/PublicPreview";
 import MemberHub from "./components/MemberHub";
 import { AuthContext } from "./context/AuthContext";
 import { getListings, getMyListings, createListing, deleteListing } from "./services/api";
-import { AnimatedBackground, CursorFollower, LoadingOverlay, ScrollExperience } from "./components/Motion";
+import { AnimatedBackground, LoadingOverlay, ScrollExperience } from "./components/Motion";
 
 function App() {
   const { user } = useContext(AuthContext);
@@ -35,7 +35,7 @@ function App() {
   const fetchUserListings = async () => {
     if (!user) return;
     try {
-      const data = await getMyListings();
+      const data = await getMyListings(user.id);
       setMyListings(data);
     } catch (error) {
       console.error("Failed to load my listings", error);
@@ -63,7 +63,7 @@ function App() {
         }
       };
       
-      await createListing(newListingData);
+      await createListing({ ...newListingData, authorId: user.id });
       fetchCommunityListings(); 
       fetchUserListings(); 
     } catch (error) {
@@ -73,7 +73,7 @@ function App() {
 
   const handleDeleteListing = async (id) => {
     try {
-      await deleteListing(id);
+      await deleteListing(id, user.id);
       fetchCommunityListings();
       fetchUserListings();
     } catch (error) {
@@ -85,7 +85,6 @@ function App() {
     <>
       <LoadingOverlay />
       <AnimatedBackground />
-      <CursorFollower />
       <ScrollExperience />
       <Navbar 
         onPostClick={() => user ? setIsModalOpen(true) : setIsAuthModalOpen(true)} 
