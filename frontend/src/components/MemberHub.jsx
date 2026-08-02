@@ -10,7 +10,7 @@ export default function MemberHub({user,listings,myListings,radius,onPost,onShow
     <div className="member-console">
       <motion.div className="local-map" whileHover={{scale:1.008}} transition={{duration:.35}}>
         <div className="map-grid"/><div className="map-sweep"/><span className="map-ring ring-1"/><span className="map-ring ring-2"/><span className="map-center"><i className="ri-home-5-fill"/></span>
-        {listings.slice(0,5).map((item,index)=><motion.button key={item._id||index} className={`map-point point-${index+1}`} initial={{scale:0}} whileInView={{scale:1}} transition={{delay:index*.08,type:"spring"}} title={item.title}><span/>{item.title}</motion.button>)}
+        {listings.slice(0,5).map((item,index)=><motion.button key={item.id||index} className={`map-point point-${index+1}`} initial={{scale:0}} whileInView={{scale:1}} transition={{delay:index*.08,type:"spring"}} title={item.title}><span/>{item.title}</motion.button>)}
         <span className="map-label">LIVE ACTIVITY · {radius} KM</span>
       </motion.div>
       <div className="member-side">

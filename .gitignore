@@ -1,3 +1,14 @@
 node_modules/
 .DS_Store
 .env
+dist/
+coverage/
+playwright-report/
+test-results/
+logs/
+project-data/uploads/*
+!project-data/uploads/.gitkeep
+project-data/backups/
+project-data/playwright-results/
+project-data/performance/
+project-data/vite-cache/

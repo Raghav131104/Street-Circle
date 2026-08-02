@@ -1,0 +1,43 @@
+{
+  "name": "street-circle",
+  "version": "2.0.0",
+  "description": "A secure neighborhood sharing platform for community-based item and skill exchange with geospatial discovery and conflict-safe requests.",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "dev": "concurrently -n client,server -c cyan,green \"npm:dev --workspace streetcircle-frontend\" \"npm:dev --workspace streetcircle-backend\"",
+    "lint": "npm run lint --workspace streetcircle-frontend && npm run lint --workspace streetcircle-backend",
+    "typecheck": "npm run typecheck --workspace streetcircle-frontend && npm run typecheck --workspace streetcircle-backend",
+    "test": "npm test --workspace streetcircle-frontend && npm test --workspace streetcircle-backend",
+    "test:integration:offline": "npm run test:integration --workspace streetcircle-backend",
+    "test:integration:atlas": "npm run test:auth:atlas && npm run test:communities:atlas && npm run test:listings:atlas && npm run test:requests:atlas && npm run test:notifications:atlas",
+    "test:integration": "npm run test:integration:offline && npm run test:integration:atlas",
+    "test:e2e": "npm run test:e2e --workspace streetcircle-frontend",
+    "build": "npm run build --workspace streetcircle-frontend && npm run build --workspace streetcircle-backend",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "verify:offline": "npm run lint && npm run typecheck && npm test && npm run test:integration:offline && npm run build",
+    "verify": "npm run lint && npm run typecheck && npm test && npm run test:integration && npm run build && npm run test:e2e",
+    "seed": "node scripts/seed.js",
+    "db:ping": "node scripts/verify-atlas.js",
+    "db:backup": "node scripts/backup-local.js",
+    "db:restore": "node scripts/restore-local.js",
+    "db:explain": "node scripts/explain-indexes.js",
+    "test:auth:atlas": "node scripts/run-node-with-network-retry.js scripts/verify-auth-atlas.js",
+    "test:communities:atlas": "node scripts/run-node-with-network-retry.js scripts/verify-communities-atlas.js",
+    "test:listings:atlas": "node scripts/run-node-with-network-retry.js scripts/verify-listings-atlas.js",
+    "test:requests:atlas": "node scripts/run-node-with-network-retry.js scripts/verify-requests-atlas.js",
+    "test:notifications:atlas": "node scripts/run-node-with-network-retry.js scripts/verify-notifications-atlas.js",
+    "test:load": "node scripts/run-node-with-network-retry.js scripts/performance-local.js"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.4",
+    "concurrently": "^9.2.1",
+    "eslint": "^9.39.4",
+    "globals": "^17.4.0",
+    "prettier": "^3.6.2"
+  }
+}

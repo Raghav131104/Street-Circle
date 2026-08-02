@@ -1,2 +1,50 @@
-﻿import {useState} from "react";import ListingCard from "./ListingCard";import ContactModal from "./ContactModal";import {motion,AnimatePresence} from "framer-motion";
-export default function ListingGrid({listings,user,activeTab,setActiveTab,filterType,setFilterType,radius,onDelete}){const [searchQuery,setSearchQuery]=useState("");const [contactInfo,setContactInfo]=useState(null);const filters=[{type:"all",label:"All",icon:"ri-layout-grid-line"},{type:"item",label:"Items",icon:"ri-box-3-line"},{type:"skill",label:"Skills",icon:"ri-tools-line"}];let displayed=listings;if(activeTab==="community"&&user)displayed=displayed.filter(item=>(item.author?._id||item.author)!==user.id);if(filterType!=="all")displayed=displayed.filter(item=>item.type===filterType);if(searchQuery.trim()){const q=searchQuery.toLowerCase();displayed=displayed.filter(item=>item.title.toLowerCase().includes(q)||item.description.toLowerCase().includes(q))}return <section className="listings"><div className="feed-tabs" role="tablist"><button className={activeTab==="community"?"active":""} onClick={()=>setActiveTab("community")}><i className="ri-earth-line"/> Community</button><button className={activeTab==="mine"?"active":""} onClick={()=>setActiveTab("mine")}><i className="ri-user-smile-line"/> My listings</button></div><div className="listings-header"><div><span className="eyebrow">The neighborhood board</span><h2>{activeTab==="mine"?"Things you've shared":"Available near you"}</h2><p>{displayed.length} {displayed.length===1?"listing":"listings"}{activeTab==="community"&&` within ${radius} km`}</p></div><div className="listing-tools"><label className="search"><i className="ri-search-line"/><span className="sr-only">Search listings</span><input type="search" placeholder="Search the circle" value={searchQuery} onChange={e=>setSearchQuery(e.target.value)}/></label><div className="filters">{filters.map(f=><button key={f.type} className={filterType===f.type?"active":""} onClick={()=>setFilterType(f.type)}><i className={f.icon}/>{f.label}</button>)}</div></div></div><motion.div layout className="cards"><AnimatePresence mode="popLayout">{displayed.map(item=><ListingCard key={item._id} listing={item} isMine={activeTab==="mine"} onDelete={()=>onDelete(item._id)} onContact={()=>setContactInfo(item.author)}/>)}</AnimatePresence>{displayed.length===0&&<div className="empty-state"><div className="empty-icon"><i className={searchQuery?"ri-search-eye-line":"ri-seedling-line"}/></div><h3>{searchQuery?"Nothing matches yet":activeTab==="mine"?"Your board is ready":"It's quiet nearby"}</h3><p>{searchQuery?"Try a broader search or another category.":activeTab==="mine"?"Share an item or skill to get started.":"Try expanding your distance."}</p></div>}</motion.div><ContactModal isOpen={!!contactInfo} user={contactInfo} onClose={()=>setContactInfo(null)}/></section>}
+import { AnimatePresence, motion } from "framer-motion";
+import ListingCard from "./ListingCard";
+
+export default function ListingGrid({
+  listings,
+  user,
+  activeTab,
+  setActiveTab,
+  filterType,
+  setFilterType,
+  searchQuery,
+  setSearchQuery,
+  radius,
+  isLoading,
+  canLoadMore,
+  onLoadMore,
+  onDelete,
+  onRequest,
+}) {
+  const filters = [
+    { type: "all", label: "All" },
+    { type: "item", label: "Items" },
+    { type: "skill", label: "Skills" },
+  ];
+  let displayed = listings;
+  if (activeTab === "community" && user) {
+    displayed = displayed.filter((item) => item.authorId !== user.id);
+  }
+
+  return <section className="listings">
+    <div className="feed-tabs" role="tablist">
+      <button className={activeTab === "community" ? "active" : ""} onClick={() => setActiveTab("community")}>Community</button>
+      <button className={activeTab === "mine" ? "active" : ""} onClick={() => setActiveTab("mine")}>My listings</button>
+    </div>
+    <div className="listings-header">
+      <div><span className="eyebrow">The neighborhood board</span><h2>{activeTab === "mine" ? "Things you've shared" : "Available near you"}</h2><p>{displayed.length} listings within {radius} km</p></div>
+      <div className="listing-tools">
+        <label className="search"><span className="sr-only">Search nearby listings</span><input type="search" placeholder="Search nearby listings" value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)}/></label>
+        <div className="filters">{filters.map((filter) => <button key={filter.type} className={filterType === filter.type ? "active" : ""} onClick={() => setFilterType(filter.type)}>{filter.label}</button>)}</div>
+      </div>
+    </div>
+    {isLoading && displayed.length === 0
+      ? <div className="empty-state" role="status"><h3>Loading nearby listings...</h3></div>
+      : <motion.div layout className="cards">
+        <AnimatePresence mode="popLayout">{displayed.map((listing) => <ListingCard key={listing.id} listing={listing} isMine={activeTab === "mine"} onDelete={() => onDelete(listing.id)} onRequest={() => onRequest(listing)} />)}</AnimatePresence>
+        {displayed.length === 0 && <div className="empty-state"><h3>No listings found</h3><p>Try a broader search or radius.</p></div>}
+      </motion.div>}
+    {canLoadMore && activeTab === "community" && <button className="load-more" type="button" disabled={isLoading} onClick={onLoadMore}>{isLoading ? "Loading..." : "Load more"}</button>}
+  </section>;
+}

@@ -1,48 +1,24 @@
 # StreetCircle Architecture
 
-## Overview
-
-StreetCircle is a frontend-focused college project with a minimal backend.
+StreetCircle is a MERN feature-based layered modular monolith, not the original MySQL demonstration.
 
 ```text
-React UI (Vite)
-  │
-  │ Axios + JSON
-  ▼
-Express API (Node.js)
-  │
-  │ mysql2 parameterized SQL
-  ▼
-MySQL
+React SPA
+  -> versioned JSON API + HttpOnly session cookie
+Express route -> middleware -> controller -> service/policy -> repository/Mongoose model
+  -> MongoDB Atlas M0
+  -> local validated image storage
 ```
 
-## Frontend responsibilities
+Authoritative identity comes only from a live server session. Community roles and listing/request ownership are enforced in services; database constraints protect uniqueness, idempotency, and exclusive acceptance under races. MongoDB performs nearby discovery using GeoJSON and a `2dsphere` index. Persisted notifications and audit events survive process restarts; local media bytes live outside MongoDB with checksum metadata.
 
-- Public and logged-in experiences
-- Form state and localStorage session
-- Listing search and filters
-- Responsive layout and accessible modals
-- Framer Motion and CSS-based decorative animation
-- API calls through `src/services/api.js`
+The complete design, boundaries, limitations, and evolution path are in:
 
-## Backend responsibilities
+- [High-level design](docs/HLD.md)
+- [Booking low-level design](docs/LLD-booking.md)
+- [Database and indexes](docs/DATABASE.md)
+- [API contract](docs/API.md)
+- [Threat model](docs/THREAT-MODEL.md)
+- [Architecture decisions](docs/adr/)
 
-All API logic lives in `backend/server.js` so it is easy to follow. `backend/db.js` creates the MySQL pool and `backend/schema.sql` creates the two tables.
-
-The backend supports registration, login, listing retrieval, listing creation, personal listing retrieval, and owned listing deletion.
-
-## Database relationship
-
-```text
-users.id 1 ──────── * listings.author_id
-```
-
-The community feed uses a SQL JOIN to combine listing and author contact data.
-
-## Authentication scope
-
-Passwords are hashed with bcrypt. After login, the browser stores the returned public user object. This is intentionally simplified for a college demonstration and is not presented as production authentication.
-
-## Animation scope
-
-The interface uses Framer Motion, CSS transitions/keyframes, and Intersection Observer. WebGL and overlapping animation libraries were removed to keep the code explainable and the bundle smaller.
+Prototype history is retained only in [the baseline audit](docs/BASELINE-AUDIT.md); it is not the current runtime architecture.

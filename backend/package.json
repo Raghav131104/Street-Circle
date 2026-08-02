@@ -2,11 +2,16 @@
   "name": "streetcircle-backend",
   "version": "1.0.0",
   "private": true,
-  "description": "Minimal Express and MySQL API for StreetCircle",
-  "main": "server.js",
+  "description": "StreetCircle modular monolith API",
+  "main": "src/server.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "node --watch server.js"
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "lint": "eslint .",
+    "typecheck": "node --check src/app.js && node --check src/server.js",
+    "test": "node --test",
+    "test:integration": "node --test tests/integration/health.test.js",
+    "build": "node --check src/app.js && node --check src/server.js"
   },
   "type": "commonjs",
   "dependencies": {
@@ -14,6 +19,12 @@
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
-    "mysql2": "^3.15.3"
+    "express-rate-limit": "^8.6.1",
+    "helmet": "^8.3.0",
+    "mongoose": "^9.9.1",
+    "multer": "^2.0.2",
+    "pino": "^10.3.1",
+    "pino-http": "^11.0.0",
+    "zod": "^4.4.3"
   }
 }
