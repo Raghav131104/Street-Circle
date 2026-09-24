@@ -1,4 +1,20 @@
-/* The sweep trails behind its leading edge as it scans counterclockwise. */
+/* Preserve the centering transform while the sweep rotates around the home. */
 .map-sweep {
-  animation-direction: reverse;
+  animation: map-radar-spin 8s linear infinite;
+}
+
+@keyframes map-radar-spin {
+  from {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .map-sweep {
+    animation: none;
+  }
 }
