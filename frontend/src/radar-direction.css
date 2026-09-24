@@ -1,0 +1,4 @@
+/* The sweep trails behind its leading edge as it scans counterclockwise. */
+.map-sweep {
+  animation-direction: reverse;
+}
